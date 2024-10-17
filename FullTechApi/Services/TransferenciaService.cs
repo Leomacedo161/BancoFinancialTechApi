@@ -1,4 +1,5 @@
 ﻿using FullTechApiDesafio.Data;
+using FullTechApiDesafio.DTO.Commands;
 using FullTechApiDesafio.Interface;
 using FullTechApiDesafio.Models;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,22 +18,30 @@ public class TransferenciaService : ITransferenciaService
         _context = context;
     }
 
-    public async Task<bool> RealizarTransferencia(Transferencia transferencia)
+    public async Task<bool> RealizarTransferencia(TransferenciaCommand command)
     {
-        if (await VerificarDiaUtil(transferencia.DataTransferencia))
+        if (await VerificarDiaUtil(DateTime.Now))
         {
-            var contaOrigem = await _context.Contas.FindAsync(transferencia.ContaOrigemId);
-            var contaDestino = await _context.Contas.FindAsync(transferencia.ContaDestinoId);
+            var contaOrigem = await _context.Contas.FindAsync(command.ContaOrigemId);
+            var contaDestino = await _context.Contas.FindAsync(command.ContaDestinoId);
 
-            if (contaOrigem == null || contaDestino == null || contaOrigem.Saldo < transferencia.Valor)
+            if (contaOrigem == null || contaDestino == null || contaOrigem.Saldo < command.Valor)
             {
                 return false;
             }
 
-            contaOrigem.Saldo -= transferencia.Valor;
-            contaDestino.Saldo += transferencia.Valor;
+            contaOrigem.Saldo -= command.Valor;
+            contaDestino.Saldo += command.Valor;
 
-            transferencia.TransferenciaConcluida = true;
+            Transferencia transferencia = new Transferencia
+            {
+                ContaOrigemId = command.ContaOrigemId,
+                ContaDestinoId = command.ContaDestinoId,
+                Valor = command.Valor,
+                TransferenciaConcluida = true,
+                DataTransferencia = DateTime.Now
+            };
+
             _context.Transferencias.Add(transferencia);
             await _context.SaveChangesAsync();
 

@@ -1,4 +1,5 @@
-﻿using FullTechApiDesafio.Models;
+﻿using FullTechApiDesafio.DTO.Commands;
+using FullTechApiDesafio.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FullTechApiDesafio.Controllers;
@@ -15,9 +16,9 @@ public class TransferenciasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> RealizarTransferencia([FromBody] Transferencia transferencia)
+    public async Task<ActionResult> RealizarTransferencia([FromBody] TransferenciaCommand command)
     {
-        var sucesso = await _service.RealizarTransferencia(transferencia);
+        var sucesso = await _service.RealizarTransferencia(command);
         if (!sucesso)
         {
             return BadRequest("Transferência falhou (verifique os feriados e dias úteis).");
