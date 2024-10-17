@@ -1,4 +1,4 @@
-﻿services:
+services:
   postgres:
     image: postgres
     environment:
@@ -8,8 +8,13 @@
       - "5432:5432"
     volumes:
       - ./data:/var/lib/postgresql/data2
+      command: postgres -c 'listen_addresses=*' # O parâmetro listen_addresses especifica os endereços IP em que o PostgreSQL irá escutar para novas conexões.
   fulltechapidesafio:
     image: fulltechapidesafio
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+        ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "8090:80"
